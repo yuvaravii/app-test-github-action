@@ -1,43 +1,48 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: Python application
+name: Python application    # name of the workflow
 
-on:
-  push:
-      branches: [ "main" ]
-        pull_request:
-            branches: [ "main" ]
+on:                         # trigger of workflow 
+  push:                     # triggers on any push to main branch            
+    branches: [ "main" ]
+  pull_request:             # triggers on any pull requests to main branch  
+    branches: [ "main" ]
 
-            permissions:
-              contents: read
+permissions:                
+  contents: read
 
-              jobs:
-                build:
+jobs:                       # any name can be given, here we write list of items to execute automatically
+  # building the container to run automically 
+  build:                    
 
-                    runs-on: ubuntu-latest
+    # built container runs on linux container (ubuntu), this can be windows, mac etc.
+    runs-on: ubuntu-latest              
 
-                        steps:
-                            - uses: actions/checkout@v4
+    steps:       
+    # step-1 Checkout the code in repository
+    - uses: actions/checkout@v4             
 
-                                - name: Set up Python 3.10
-                                      uses: actions/setup-python@v4
-                                            with:
-                                                    python-version: "3.10"
+    # step-2: Install python and set up python environment
+    - name: Set up Python 3.10              # setting up python for running files
+      uses: actions/setup-python@v3         # python environment creation
+      with:
+        python-version: "3.10"
 
-                                                        - name: Install dependencies
-                                                              run: |
-                                                                      python -m pip install --upgrade pip
-                                                                              pip install flake8 pytest
-                                                                                      if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-                                                                                          - name: Lint with flake8
-                                                                                                run: |
-                                                                                                        # stop the build if there are Python syntax errors or undefined names
-                                                                                                                flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-                                                                                                                        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-                                                                                                                                flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-                                                                                                                                        
-                                                                                                                                            - name: Test with pytest
-                                                                                                                                                  run: |
-                                                                                                                                                          pytest
+    # step-3: Installing all dependencies of python
+    - name: Install dependencies             # install all the requirements.txt
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        pip install -r requirements.txt
+
+    # step-4: checking for syntax error and undefined variables
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        
+    # step-5: Run tests with pytest    
+    - name: Test with pytest
+      run: pytest tests
